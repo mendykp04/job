@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ตารางให้ยา — ระบบบันทึกผู้สูงอายุ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="medication">
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="เมนูหลัก"></nav>
+
+  <main class="content">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">ตารางให้ยา</h1>
+        <span id="today" class="page-sub"></span>
+      </div>
+      <button type="button" id="add-med" class="btn">+ เพิ่มยา</button>
+    </header>
+
+    <div class="row day-nav" aria-label="เลือกวันที่">
+      <button type="button" id="mar-prev" class="btn btn-sm">← วันก่อน</button>
+      <label for="mar-date" class="sr-only">วันที่</label>
+      <input id="mar-date" type="date" class="input input-sm">
+      <button type="button" id="mar-next" class="btn btn-sm">วันถัดไป →</button>
+      <button type="button" id="mar-today" class="btn btn-sm">กลับมาวันนี้</button>
+      <span id="mar-help" class="page-sub" style="font-size: 15px"></span>
+    </div>
+
+    <div class="row" style="gap: 20px; font-size: 15px">
+      <span class="row" style="gap: 8px"><span style="width:16px;height:16px;border-radius:3px;background:var(--primary-soft);border:1px solid var(--primary)"></span>ให้ยาแล้ว</span>
+      <span class="row" style="gap: 8px"><span style="width:16px;height:16px;border-radius:3px;border:1px dashed #8C95A5"></span>รอให้ยา</span>
+      <span class="row" style="gap: 8px"><span style="width:16px;height:16px;border-radius:3px;background:var(--danger-soft);border:1px solid var(--danger)"></span>ไม่ได้ให้ / ปฏิเสธ</span>
+      <span class="row" style="gap: 8px"><span class="prn-chip" style="min-height: 0; padding: 0 6px" aria-hidden="true">✓</span>ยาให้เมื่อมีอาการ (PRN)</span>
+    </div>
+
+    <section class="card" style="padding: 8px 8px 16px">
+      <div class="table-wrap">
+        <table style="min-width: 900px">
+          <thead>
+            <tr>
+              <th>ผู้สูงอายุ</th><th>ยา / ขนาด</th>
+              <th class="center">เช้า 08:00</th><th class="center">กลางวัน 12:00</th>
+              <th class="center">เย็น 17:00</th><th class="center">ก่อนนอน 20:00</th>
+            </tr>
+          </thead>
+          <tbody id="mar-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

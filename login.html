@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <title>เข้าสู่ระบบ — ระบบบันทึกผู้สูงอายุ</title>
+</head>
+<body data-page="login" class="login-page">
+<main class="login-wrap">
+  <section id="login-card" class="card login-card">
+    <div class="brand" style="padding: 0 0 16px; margin: 0">
+      <div class="brand-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 21s-7-4.5-9.3-9A5 5 0 0 1 12 6a5 5 0 0 1 9.3 6c-2.3 4.5-9.3 9-9.3 9z"/></svg>
+      </div>
+      <div><span id="login-center" class="brand-name">ระบบบันทึกผู้สูงอายุ</span><span class="brand-sub">บันทึกการดูแลแทนกระดาษ</span></div>
+    </div>
+    <h1 id="login-title" class="card-title">เข้าสู่ระบบ</h1>
+    <form id="login-form" class="login-form" novalidate>
+      <div id="setup-fields" hidden>
+        <div class="field"><label for="l-name">ชื่อที่แสดงในบันทึก</label><input id="l-name" name="name" class="input" placeholder="เช่น หัวหน้าพยาบาลสมศรี" autocomplete="name"></div>
+      </div>
+      <div class="field"><label for="username">ชื่อผู้ใช้</label><input id="username" name="username" class="input" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+      <div class="field"><label for="password">รหัสผ่าน</label><input id="password" name="password" type="password" class="input" autocomplete="current-password" required></div>
+      <div class="field" id="confirm-wrap"><label for="l-confirm">พิมพ์รหัสผ่านอีกครั้ง</label><input id="l-confirm" name="confirm" type="password" class="input" autocomplete="new-password"></div>
+      <p id="login-error" class="form-error" role="alert" hidden></p>
+      <button id="login-submit" type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
+    </form>
+    <p class="page-sub" style="font-size: 14px; margin: 0">ลืมรหัสผ่าน ให้หัวหน้า / ผู้ดูแลระบบตั้งรหัสผ่านใหม่ให้</p>
+  </section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

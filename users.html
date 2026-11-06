@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <title>จัดการผู้ใช้ — ระบบบันทึกผู้สูงอายุ</title>
+</head>
+<body data-page="users">
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="เมนูหลัก"></nav>
+
+  <main class="content">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">จัดการผู้ใช้</h1>
+        <span class="page-sub">ทุกคนที่บันทึกข้อมูลควรมีบัญชีของตัวเอง เพื่อให้รู้ว่าใครบันทึกอะไร</span>
+      </div>
+      <button type="button" id="u-add" class="btn btn-primary">+ เพิ่มผู้ใช้</button>
+    </header>
+
+    <section class="card" style="padding: 8px 8px 16px">
+      <div class="table-wrap">
+        <table style="min-width: 640px">
+          <thead><tr><th>ชื่อ</th><th>ชื่อผู้ใช้</th><th>บทบาท</th><th>สถานะ</th><th class="center"><span class="sr-only">แก้ไข</span></th></tr></thead>
+          <tbody id="u-rows"><tr><td colspan="5" class="empty">กำลังโหลด…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">บทบาทและสิทธิ์</h2>
+      <ul id="role-help" class="event-list"></ul>
+      <p class="page-sub" style="margin: 0">พนักงานลาออก ให้กด "แก้ไข" แล้วเปลี่ยนเป็น "ระงับ" แทนการลบ บันทึกเก่าของคนนั้นจะยังอยู่ครบ</p>
+    </section>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

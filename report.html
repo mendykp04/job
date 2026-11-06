@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ออกรายงาน — ระบบบันทึกผู้สูงอายุ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="report">
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="เมนูหลัก"></nav>
+
+  <main class="content">
+    <header class="no-print">
+      <h1 class="page-title">ออกรายงาน</h1>
+      <span class="page-sub">เลือกประเภทรายงาน ช่วงเวลา และผู้สูงอายุ แล้วดูตัวอย่างก่อนพิมพ์หรือดาวน์โหลด</span>
+    </header>
+
+    <section class="report-types no-print" aria-label="ประเภทรายงาน">
+      <button type="button" class="report-type" aria-pressed="false" data-type="transfer"><strong>ใบส่งตัวไปโรงพยาบาล</strong><span>พิมพ์แนบไปกับผู้สูงอายุ เมื่อต้องส่งโรงพยาบาล</span></button>
+      <button type="button" class="report-type" aria-pressed="false" data-type="health"><strong>สรุปสุขภาพรายบุคคล</strong><span>สัญญาณชีพ ยา อาการ — ส่งญาติหรือแพทย์</span></button>
+      <button type="button" class="report-type" aria-pressed="false" data-type="mar"><strong>การให้ยา</strong><span>ให้ครบ / ขาด / ปฏิเสธ แยกตามคนและรอบ</span></button>
+      <button type="button" class="report-type" aria-pressed="false" data-type="shift"><strong>ส่งเวรประจำวัน</strong><span>เหตุการณ์และผู้ที่ต้องเฝ้าระวัง</span></button>
+      <button type="button" class="report-type" aria-pressed="false" data-type="incident"><strong>เหตุการณ์ผิดปกติ</strong><span>ค่าผิดปกติ หกล้ม ไข้ ส่งโรงพยาบาล</span></button>
+    </section>
+
+    <section class="card no-print" style="flex-direction: row; flex-wrap: wrap; align-items: flex-end">
+      <div class="field" style="flex: 1 1 260px"><label for="rwho">ผู้สูงอายุ</label><select id="rwho" class="input"></select></div>
+      <div id="rfrom-wrap" class="field" style="flex: 1 1 180px"><label for="rfrom">ตั้งแต่วันที่</label><input id="rfrom" type="date" class="input"></div>
+      <div id="rto-wrap" class="field" style="flex: 1 1 180px"><label id="rto-label" for="rto">ถึงวันที่</label><input id="rto" type="date" class="input"></div>
+    </section>
+
+    <section id="transfer-panel" class="card no-print" aria-label="ข้อมูลการส่งตัว" hidden>
+      <div>
+        <h2 class="card-title">ข้อมูลการส่งตัว</h2>
+        <span class="page-sub">กรอกแล้วใบส่งตัวด้านล่างจะเปลี่ยนตาม ช่องที่เว้นว่างจะพิมพ์เป็นเส้นไข่ปลาให้เขียนด้วยมือ</span>
+      </div>
+      <div id="transfer-fields" class="dialog-fields"></div>
+      <div class="row">
+        <button id="transfer-save" type="button" class="btn">บันทึกการส่งตัวลงบันทึกพยาบาล</button>
+        <button id="transfer-clear" type="button" class="btn btn-danger">ล้างข้อมูลที่กรอก</button>
+      </div>
+    </section>
+
+    <div class="row between no-print">
+      <h2 class="card-title">ตัวอย่างก่อนพิมพ์</h2>
+      <div class="row">
+        <button id="btn-print" type="button" class="btn">พิมพ์</button>
+        <button id="btn-excel" type="button" class="btn">ดาวน์โหลด Excel (.csv)</button>
+        <button id="btn-pdf" type="button" class="btn btn-primary">ดาวน์โหลด PDF</button>
+      </div>
+    </div>
+
+    <article id="paper" class="paper" aria-label="รายงาน" aria-live="polite"></article>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

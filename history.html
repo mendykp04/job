@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <title>ประวัติการแก้ไข — ระบบบันทึกผู้สูงอายุ</title>
+</head>
+<body data-page="history">
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="เมนูหลัก"></nav>
+
+  <main class="content">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">ประวัติการแก้ไข</h1>
+        <span class="page-sub">ทุกการเพิ่ม แก้ไข และลบ บันทึกไว้ว่าใครทำ เมื่อไร และเปลี่ยนอะไร ลบประวัตินี้ไม่ได้</span>
+      </div>
+    </header>
+
+    <section id="h-filters" class="card no-print" style="flex-direction: row; flex-wrap: wrap; align-items: flex-end">
+      <div class="field" style="flex: 1 1 200px"><label for="h-tbl">ประเภทข้อมูล</label><select id="h-tbl" class="input"></select></div>
+      <div class="field" style="flex: 1 1 200px"><label for="h-user">ผู้ทำรายการ</label><select id="h-user" class="input"><option value="">ทุกคน</option></select></div>
+      <div class="field" style="flex: 1 1 160px"><label for="h-from">ตั้งแต่วันที่</label><input id="h-from" type="date" class="input"></div>
+      <div class="field" style="flex: 1 1 160px"><label for="h-to">ถึงวันที่</label><input id="h-to" type="date" class="input"></div>
+    </section>
+
+    <section id="h-one" class="orders row" hidden>
+      <span>กำลังดูประวัติของ<strong id="h-one-text"></strong> 1 รายการ</span>
+      <a href="history.html" class="btn btn-sm" style="margin-left: auto">ดูประวัติทั้งหมด</a>
+    </section>
+
+    <section class="card" style="padding: 8px 8px 16px">
+      <div class="table-wrap">
+        <table style="min-width: 860px">
+          <thead><tr><th>เวลา</th><th>ผู้ทำรายการ</th><th>การกระทำ</th><th>รายการ</th><th>รายละเอียด</th></tr></thead>
+          <tbody id="h-rows"><tr><td colspan="5" class="empty">กำลังโหลด…</td></tr></tbody>
+        </table>
+      </div>
+      <button id="h-more" type="button" class="btn" style="align-self: center" hidden>โหลดเพิ่ม</button>
+    </section>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

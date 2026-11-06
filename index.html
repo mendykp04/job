@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>หน้าหลัก — ระบบบันทึกผู้สูงอายุ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="เมนูหลัก"></nav>
+
+  <main class="content">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">สวัสดีตอนเช้า</h1>
+        <span id="today" class="page-sub"></span>
+      </div>
+      <div class="row">
+        <a class="btn btn-primary" href="record.html">+ บันทึกอาการ</a>
+        <button type="button" id="add-resident" class="btn">+ เพิ่มผู้สูงอายุ</button>
+      </div>
+    </header>
+
+    <section class="stat-strip" aria-label="สรุปวันนี้">
+      <div class="stat"><span class="stat-label">ผู้สูงอายุในความดูแล</span><span id="stat-total" class="stat-value">–</span></div>
+      <div class="stat"><span id="stat-next-label" class="stat-label">ยารอบถัดไปที่ยังไม่ได้ให้</span><span id="stat-next" class="stat-value">–</span></div>
+      <div class="stat warn"><span class="stat-label">ต้องเฝ้าระวัง</span><span id="stat-warn" class="stat-value">–</span></div>
+      <div class="stat"><span class="stat-label">นัดพบแพทย์ใน 7 วันนี้</span><span id="stat-appt" class="stat-value">–</span></div>
+    </section>
+
+    <section class="card" aria-label="รายชื่อผู้สูงอายุ">
+      <div class="row between">
+        <h2 class="card-title">รายชื่อผู้สูงอายุ</h2>
+        <div class="row">
+          <label for="search" class="sr-only">ค้นหา</label>
+          <input id="search" class="input" type="search" placeholder="ค้นหาชื่อ ห้อง หรือโรค" style="width: 280px; max-width: 100%">
+          <button type="button" class="chip active" aria-pressed="true" data-filter="all">ทั้งหมด</button>
+          <button type="button" class="chip" aria-pressed="false" data-filter="warn">เฝ้าระวัง</button>
+          <button type="button" class="chip" aria-pressed="false" data-filter="bed">ติดเตียง</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table style="min-width: 820px">
+          <thead>
+            <tr><th>ชื่อ–นามสกุล</th><th>ห้อง</th><th>โรคประจำตัว</th><th>แพ้ยา</th><th>บันทึกล่าสุด</th><th>สถานะ</th></tr>
+          </thead>
+          <tbody id="resident-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

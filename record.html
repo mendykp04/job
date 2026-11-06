@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>บันทึกอาการ — ระบบบันทึกผู้สูงอายุ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Trirong:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    #pt-info { display: flex; flex-wrap: wrap; gap: 24px; font-size: 15px; }
+    #pt-info div { display: flex; flex-direction: column; }
+    #pt-info small { color: var(--muted); font-size: 13px; }
+    .vin { width: 100%; padding: 9px 6px; border: 1px solid var(--input); border-radius: 4px; font: inherit; font-size: 15px; }
+    .new-row td { background: var(--hl-soft); padding: 8px; border-bottom: 2px solid var(--ink); }
+  </style>
+</head>
+<body data-page="record">
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="เมนูหลัก"></nav>
+
+  <main class="content" style="gap: 20px">
+    <!-- หัวกระดาษ: ชื่อ อายุ อาหาร -->
+    <section class="card" style="flex-direction: row; flex-wrap: wrap; align-items: center; gap: 20px; padding: 20px 24px">
+      <div class="field" style="flex: 1 1 280px">
+        <label for="pt">ผู้ป่วย</label>
+        <select id="pt" class="input" style="font-size: 18px; font-weight: 600"></select>
+      </div>
+      <div id="pt-info"></div>
+      <a id="transfer-link" class="btn" href="report.html?type=transfer" style="margin-left: auto">พิมพ์ใบส่งตัวไป รพ.</a>
+    </section>
+
+    <section class="orders row" aria-label="คำสั่งแพทย์" style="gap: 10px">
+      <strong style="color: var(--info); margin-right: 6px">คำสั่งแพทย์ที่ใช้อยู่</strong>
+      <div id="orders" class="row" style="gap: 8px"></div>
+      <button type="button" id="add-order" class="btn btn-sm" style="margin-left: auto">+ เพิ่มคำสั่ง</button>
+    </section>
+
+    <!-- กระดาษใบที่ 1: บันทึกการตรวจ -->
+    <section class="card" aria-label="บันทึกการตรวจ">
+      <div class="row between" style="align-items: flex-end">
+        <div>
+          <h2 class="card-title">บันทึกการตรวจ (สัญญาณชีพ)</h2>
+          <span id="vital-date" class="page-sub" style="font-size: 15px"></span>
+        </div>
+        <div class="row day-nav" aria-label="เลือกวันที่">
+          <button type="button" id="vd-prev" class="btn btn-sm" aria-label="วันก่อนหน้า">← วันก่อน</button>
+          <label for="vital-day" class="sr-only">วันที่</label>
+          <input id="vital-day" type="date" class="input input-sm">
+          <button type="button" id="vd-next" class="btn btn-sm" aria-label="วันถัดไป">วันถัดไป →</button>
+          <button type="button" id="vd-today" class="btn btn-sm">กลับมาวันนี้</button>
+        </div>
+      </div>
+      <div id="vital-days" class="row" style="gap: 6px"></div>
+      <p id="limit-note" class="page-sub" style="font-size: 14px; margin: 0"></p>
+      <form id="vital-form" class="table-wrap">
+        <table style="min-width: 1000px">
+          <thead>
+            <tr>
+              <th>เวลา</th><th class="center">T.<br>อุณหภูมิ</th><th class="center">P.<br>ชีพจร</th><th class="center">R.<br>หายใจ</th>
+              <th class="center">BP.<br>ความดัน</th><th class="center">U.<br>ปัสสาวะ</th><th class="center">O.<br>ออกซิเจน %</th>
+              <th class="center">Sugar<br>น้ำตาล</th><th>อาการที่ตรวจพบ</th><th>ผู้ตรวจ</th>
+            </tr>
+          </thead>
+          <tbody id="vital-rows"></tbody>
+          <tbody>
+            <tr class="new-row">
+              <td><input id="v-time" name="time" type="time" class="vin" style="width: 96px" aria-label="เวลา" required></td>
+              <td><input name="t" class="vin" aria-label="อุณหภูมิ" inputmode="decimal"></td>
+              <td><input name="p" class="vin" aria-label="ชีพจร" inputmode="numeric"></td>
+              <td><input name="r" class="vin" aria-label="การหายใจ" inputmode="numeric"></td>
+              <td><input name="bp" class="vin" aria-label="ความดัน" placeholder="120/80"></td>
+              <td><input name="u" class="vin" aria-label="ปัสสาวะ"></td>
+              <td><input name="o2" class="vin" aria-label="ออกซิเจน" inputmode="numeric"></td>
+              <td><input name="sugar" class="vin" aria-label="น้ำตาล" inputmode="numeric"></td>
+              <td><input name="note" class="vin" aria-label="อาการที่ตรวจพบ" placeholder="เช่น On O₂ 3 L"></td>
+              <td><button type="submit" class="btn btn-primary" style="width: 100%; padding: 0 10px">+ เพิ่ม</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </section>
+
+    <div class="row" style="align-items: flex-start; gap: 20px">
+      <!-- กระดาษใบที่ 2: บันทึกทางการพยาบาล / เหตุการณ์ -->
+      <section class="card" style="flex: 999 1 560px; min-width: 0" aria-label="บันทึกทางการพยาบาล">
+        <div>
+          <h2 class="card-title">บันทึกทางการพยาบาล / เหตุการณ์</h2>
+          <span id="notes-date" class="page-sub" style="font-size: 15px"></span>
+        </div>
+        <form id="note-form" style="background: #F7F8FB; border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+          <span style="font-size: 14px; font-weight: 600; color: var(--muted)">กดเลือกงานที่ทำ ระบบจะเติมข้อความให้ แก้ไขต่อได้</span>
+          <div class="row" style="gap: 8px">
+            <button type="button" class="chip active" aria-pressed="true" data-quick="อาหาร NG">Feed ทาง NG</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="Suction">Suction</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="ออกซิเจน">On / ปรับ / Off O₂</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="พลิกตัว">พลิกตะแคงตัว</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="ทำแผล">ทำแผล</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="ขับถ่าย">ขับถ่าย</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="แพทย์สั่ง">แพทย์สั่งเพิ่ม</button>
+            <button type="button" class="chip" aria-pressed="false" data-quick="เหตุการณ์ผิดปกติ">เหตุการณ์ผิดปกติ</button>
+          </div>
+          <label for="n-text" class="sr-only">ข้อความบันทึก</label>
+          <textarea id="n-text" name="text" rows="3" class="input" style="resize: vertical">Feed Gen DM 300 cc น้ำตาม 50 cc ไม่พบปัญหาในการให้อาหารทาง NG</textarea>
+          <div class="row" style="align-items: flex-end">
+            <div class="field"><label for="n-time">เวลา</label><input id="n-time" name="time" type="time" class="input" style="width: 120px" required></div>
+            <div class="field"><label for="n-urine">ปัสสาวะ (cc)</label><input id="n-urine" name="urine" type="number" class="input" style="width: 120px"></div>
+            <div class="field"><label for="n-stool">อุจจาระ (ครั้ง)</label><input id="n-stool" name="stool" type="number" class="input" style="width: 120px"></div>
+            <button type="submit" class="btn btn-primary" style="margin-left: auto">บันทึก</button>
+          </div>
+        </form>
+        <div id="notes"></div>
+      </section>
+
+      <aside style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 16px" aria-label="สรุป">
+        <div class="stat warn">
+          <span class="stat-label" style="font-weight: 700">พลิกตะแคงตัวครั้งถัดไป</span>
+          <span id="turn-next" class="stat-value">–</span>
+          <span id="turn-note" class="stat-label" style="font-size: 14px"></span>
+        </div>
+        <div class="card" style="padding: 18px; gap: 12px">
+          <strong id="io-label">สรุปขับถ่ายวันนี้</strong>
+          <div class="row between"><span class="page-sub">ปัสสาวะ</span><strong id="io-urine">–</strong></div>
+          <div class="row between"><span class="page-sub">อุจจาระ</span><strong id="io-stool">–</strong></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

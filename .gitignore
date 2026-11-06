@@ -1,0 +1,12 @@
+# ฐานข้อมูลและไฟล์สำรอง มีข้อมูลผู้ป่วยจริง ห้ามขึ้น GitHub
+data/
+*.db
+*.db-shm
+*.db-wal
+care-backup-*.json
+
+# ไฟล์ของระบบ
+.DS_Store
+__pycache__/
+*.pyc
+.claude/

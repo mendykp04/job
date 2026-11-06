@@ -1,0 +1,309 @@
+/* ===== ระบบบันทึกข้อมูลผู้สูงอายุ — สไตล์หลัก =====
+   แนวคิด: สมุดเวรพยาบาล — หมึกปากกาน้ำเงิน, ปากกาแดงสำหรับค่าผิดปกติ,
+   ปากกาเน้นข้อความสีเหลืองสำหรับเรื่องที่ต้องเฝ้าระวัง
+   ฟอนต์: Sarabun (ฟอนต์เอกสารราชการที่ทุกคนคุ้นตา) + Trirong (หัวเรื่อง มีหัว อ่านง่าย) */
+:root {
+  --bg: #ECEEF1;          /* โต๊ะ */
+  --surface: #FFFFFF;     /* กระดาษ */
+  --ink: #1F2633;
+  --muted: #5B6474;
+  --line: #CDD3DD;        /* เส้นบรรทัด */
+  --line-soft: #E3E7ED;
+  --input: #B4BCC9;
+
+  --primary: #24409C;     /* หมึกน้ำเงิน */
+  --primary-dark: #182D73;
+  --primary-soft: #E9EDF8;
+
+  --side: #1F2633;
+  --side-active: #FFF2A6;
+  --side-text: #3B4352;
+  --side-muted: #6B7383;
+
+  --hl: #FFEC7A;          /* ปากกาเน้นข้อความ */
+  --hl-soft: #FFF8CC;
+  --warn: #6E4A00;
+  --warn-soft: #FFF8CC;
+  --warn-line: #E8D27A;
+  --danger: #C02626;      /* ปากกาแดง */
+  --danger-soft: #FCEDED;
+  --info: #24409C;
+  --info-soft: #E9EDF8;
+
+  --radius: 6px;
+  --font: 'Sarabun', 'Leelawadee UI', 'Thonburi', sans-serif;
+  --font-head: 'Trirong', 'Sarabun', serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.55; }
+a { color: var(--primary); text-underline-offset: 3px; }
+a:hover { color: var(--primary-dark); }
+h1, h2, h3 { margin: 0; font-family: var(--font-head); font-weight: 600; line-height: 1.3; }
+.sr-only { position: absolute; left: -9999px; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* ปากกาเน้นข้อความ: ระบายครึ่งล่างของตัวอักษร เหมือนขีดด้วยมือ */
+.hl { background: linear-gradient(transparent 45%, var(--hl) 45%, var(--hl) 88%, transparent 88%); padding: 0 3px; }
+
+/* ----- โครงหน้า ----- */
+.layout { display: flex; flex-wrap: wrap; min-height: 100vh; }
+.sidebar {
+  flex: 1 1 230px; max-width: 100%;
+  background: var(--surface); color: var(--ink);
+  border-right: 1px solid var(--line);
+  padding: 28px 22px; display: flex; flex-direction: column; gap: 2px;
+}
+.brand { display: flex; align-items: center; gap: 12px; padding: 0 6px 24px; margin-bottom: 12px; border-bottom: 1px solid var(--line-soft); }
+.brand-logo { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; flex: none; }
+.brand-logo svg { stroke: var(--primary); }
+.brand-name { font-family: var(--font-head); font-weight: 600; font-size: 18px; display: block; line-height: 1.25; }
+.brand-sub { font-size: 14px; color: var(--side-muted); }
+.nav-link { display: block; padding: 10px 6px; color: var(--side-text); text-decoration: none; font-size: 17px; }
+.nav-link:hover { color: var(--primary); text-decoration: underline; }
+.nav-link.active { width: fit-content; padding-right: 10px; color: var(--ink); font-weight: 600; background: linear-gradient(transparent 50%, var(--hl) 50%, var(--hl) 85%, transparent 85%); }
+.sidebar-user { margin-top: auto; padding: 16px 6px 0; border-top: 1px solid var(--line-soft); font-size: 14px; color: var(--side-muted); }
+.sidebar-user strong { color: var(--ink); font-size: 16px; }
+.sidebar-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 8px; }
+
+.content { flex: 999 1 560px; min-width: 0; padding: 36px 44px 56px; display: flex; flex-direction: column; gap: 28px; }
+@media (max-width: 700px) { .content { padding: 20px 14px 40px; } }
+
+/* ----- ส่วนประกอบ ----- */
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.page-title { font-size: 32px; font-weight: 600; }
+.page-sub { color: var(--muted); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 26px; display: flex; flex-direction: column; gap: 16px; }
+.card-title { font-size: 21px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row.between { justify-content: space-between; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1000px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+/* สรุปตัวเลข: แถบเดียวคั่นด้วยเส้น แทนการ์ดแยกกล่อง */
+.stat-strip { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.stat-strip .stat { background: none; border: 0; border-radius: 0; border-left: 1px solid var(--line-soft); }
+.stat-strip .stat:first-child { border-left: 0; }
+@media (max-width: 1000px) {
+  .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat-strip .stat:nth-child(3) { border-left: 0; }
+  .stat-strip .stat:nth-child(n+3) { border-top: 1px solid var(--line-soft); }
+}
+
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 22px; display: flex; flex-direction: column; gap: 2px; }
+.stat-label { font-size: 15px; color: var(--muted); }
+.stat-value { font-family: var(--font-head); font-size: 36px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stat.warn .stat-value { width: fit-content; background: linear-gradient(transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%); padding: 0 4px; }
+.stat-strip .stat.warn .stat-label { color: var(--ink); font-weight: 600; }
+aside .stat.warn { background: var(--hl-soft); border-color: var(--warn-line); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 4px; border: 1px solid var(--input); background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+.btn:hover { border-color: var(--ink); color: var(--ink); }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+.btn-icon { width: 44px; padding: 0; }
+
+.chip { min-height: 40px; padding: 0 14px; border-radius: 4px; border: 1px solid var(--input); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; }
+.chip:hover { border-color: var(--ink); }
+.chip.active { border-color: var(--primary); background: var(--primary); color: #fff; font-weight: 600; }
+
+.badge { display: inline-block; padding: 0 4px; font-size: 15px; font-weight: 600; }
+.badge.ok { color: var(--muted); font-weight: 400; }
+.badge.warn { color: var(--ink); background: linear-gradient(transparent 40%, var(--hl) 40%, var(--hl) 92%, transparent 92%); }
+.badge.bed { color: var(--primary); border: 1px solid currentColor; border-radius: 3px; padding: 0 6px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 3px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 15px; }
+
+.alert { border-radius: var(--radius); padding: 12px 18px; display: flex; align-items: center; gap: 12px; font-size: 17px; }
+.alert.danger { background: var(--danger-soft); border: 1px solid #EBB4B4; border-left: 4px solid var(--danger); color: #8E1515; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 15px; font-weight: 600; }
+.input, select.input, textarea.input { padding: 10px 12px; border: 1px solid var(--input); border-radius: 4px; font: inherit; background: #fff; color: var(--ink); }
+.input:focus { outline: 2px solid var(--primary); outline-offset: 0; border-color: var(--primary); }
+
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 600; flex: none; }
+.avatar.lg { width: 88px; height: 88px; font-size: 38px; }
+
+/* ----- ตาราง (เหมือนแบบฟอร์มกระดาษ มีเส้นบรรทัด) ----- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; color: var(--ink); font-size: 15px; font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--ink); vertical-align: bottom; line-height: 1.35; }
+td { padding: 12px; border-bottom: 1px solid var(--line); }
+tbody tr:hover td { background: #F7F8FB; }
+td.center, th.center { text-align: center; }
+.abnormal { color: var(--danger); font-weight: 700; }
+.person-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+.person-link:hover strong, .person-link:hover span:not(.avatar) { text-decoration: underline; }
+.person-link small { display: block; color: var(--muted); font-size: 14px; }
+
+/* ----- ตารางให้ยา ----- */
+.mar-btn { width: 100%; min-height: 50px; border-radius: 4px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.mar-btn.done { background: var(--primary-soft); color: var(--primary-dark); border: 1px solid var(--primary); }
+.mar-btn.wait { background: #fff; color: var(--muted); border: 1px dashed #8C95A5; }
+.mar-btn.wait:hover { border-style: solid; border-color: var(--ink); color: var(--ink); }
+.mar-btn.miss { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger); }
+
+/* ----- บันทึกพยาบาล ----- */
+.note { display: flex; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.note-time { width: 56px; flex: none; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.note-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.note-body p { margin: 0; line-height: 1.65; white-space: pre-line; max-width: 72ch; }
+.note-meta { font-size: 14px; color: var(--muted); }
+.note-io { width: 130px; flex: none; text-align: right; font-size: 15px; color: var(--muted); }
+.note-tag { align-self: flex-start; padding: 0 8px; border-radius: 3px; font-size: 14px; font-weight: 600; border: 1px solid currentColor; background: none !important; }
+.day-head { font-family: var(--font-head); font-weight: 600; font-size: 18px; color: var(--ink); padding: 18px 0 6px; border-bottom: 2px solid var(--ink); }
+.orders { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--primary); border-radius: var(--radius); padding: 14px 20px; }
+
+/* ----- รายงาน ----- */
+.report-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.report-type { text-align: left; padding: 16px 18px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; color: var(--ink); font: inherit; display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+.report-type:hover { border-color: var(--ink); }
+.report-type strong { font-size: 17px; }
+.report-type span { font-size: 15px; color: var(--muted); }
+.report-type.active { border: 2px solid var(--primary); padding: 15px 17px; }
+.report-type.active strong { color: var(--primary); }
+
+/* ----- เอกสารทางการ (รายงาน / ใบส่งตัว) : ขนาด A4 พิมพ์ขาวดำได้ ----- */
+.paper { background: #fff; color: #000; border: 1px solid var(--line); border-radius: 2px; box-shadow: 0 2px 0 -1px #fff, 0 3px 0 -1px var(--line), 0 6px 0 -2px #fff, 0 7px 0 -2px var(--line);
+  padding: 52px 60px; max-width: 880px; width: 100%; align-self: center; display: flex; flex-direction: column; gap: 22px;
+  font-family: var(--font); font-size: 16px; line-height: 1.6; counter-reset: sec; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.paper h2, .paper h3 { font-family: var(--font); }
+.doc-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding-bottom: 14px; border-bottom: 3px double #000; }
+.doc-org strong { display: block; font-size: 20px; font-weight: 700; }
+.doc-org span { font-size: 15px; }
+.doc-title { font-size: 23px; font-weight: 700; margin-top: 10px; }
+.doc-sub { margin: 0; }
+.doc-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 28px; margin-top: 6px; font-size: 15px; }
+.doc-to { margin: 0; font-weight: 600; }
+.doc-text { margin: 0; white-space: pre-line; }
+.doc-note { margin: 0; font-size: 14px; color: #444; }
+.paper .empty { color: #444; }
+.dots { display: inline-block; min-width: 10em; height: 1.05em; border-bottom: 1px dotted #000; vertical-align: baseline; margin: 0 2px; }
+.blank-lines span { display: block; height: 1.9em; border-bottom: 1px dotted #000; }
+.checklist { display: flex; flex-wrap: wrap; gap: 2px 20px; }
+
+.report-section { display: flex; flex-direction: column; gap: 22px; counter-reset: sec; }
+.report-section + .report-section { border-top: 3px double #000; padding-top: 22px; }
+.report-block { display: flex; flex-direction: column; gap: 8px; }
+.paper h3.sec { font-size: 17px; font-weight: 700; }
+.paper h3.sec::before { counter-increment: sec; content: counter(sec) ". "; }
+
+.paper table { border: 1px solid #000; }
+.paper th, .paper td { border: 1px solid #000; padding: 6px 10px; font-size: 15px; color: #000; vertical-align: top; }
+.paper thead th { background: #EEF0F3; vertical-align: middle; }
+.paper tbody tr:hover td { background: none; }
+.paper .kv th { width: 9.5em; text-align: left; font-weight: 600; background: #F6F7F9; }
+.paper .abnormal { color: var(--danger); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.allergy-box { border: 2px solid var(--danger); color: var(--danger); padding: 8px 14px; font-size: 18px; }
+.allergy-box.none { border: 1px solid #000; color: #000; font-size: 16px; }
+.event-list { margin: 0; padding-left: 20px; line-height: 1.75; }
+.comment { min-height: 72px; padding: 10px 12px; border: 1px dashed var(--input); border-radius: 4px; white-space: pre-wrap; line-height: 1.65; }
+.comment:focus { outline: 2px solid var(--primary); border-color: transparent; }
+.comment:empty::before { content: attr(data-placeholder); color: var(--muted); }
+
+.signatures { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px 20px; padding-top: 28px; }
+.sign { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; font-size: 15px; }
+.doc-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding-top: 8px; border-top: 1px solid #000; font-size: 13px; color: #444; }
+
+.bars { position: relative; height: 190px; display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 18px; align-items: end; padding: 0 8px; border-bottom: 2px solid var(--ink); }
+.bar-labels { display: grid; gap: 18px; padding: 0 8px; font-size: 14px; color: #444; text-align: center; }
+.bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.threshold { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--danger); pointer-events: none; }
+.bar { width: 100%; max-width: 44px; border-radius: 2px 2px 0 0; }
+
+/* ----- ปุ่มเล็ก / ปุ่มลิงก์ ----- */
+.btn-sm { min-height: 36px; padding: 0 12px; font-size: 15px; }
+.btn-danger { color: var(--danger); border-color: #E5B3B3; }
+.btn-danger:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
+.link-btn { background: none; border: 0; padding: 2px 0; font: inherit; font-size: 14px; font-weight: 400; color: var(--primary); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.link-btn:hover { color: var(--primary-dark); }
+.tag-btn { font: inherit; font-size: 15px; text-align: left; cursor: pointer; }
+.tag-btn:hover { border-color: var(--ink); }
+.empty { color: var(--muted); margin: 0; }
+.hint { color: var(--muted); font-size: 14px; }
+
+/* ----- หน้าต่างฟอร์ม เพิ่ม/แก้ไข ----- */
+.dialog { border: 1px solid var(--line); border-radius: var(--radius); padding: 0; width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 32px); color: var(--ink); background: var(--surface); box-shadow: 0 16px 48px rgba(31, 38, 51, .28); }
+.dialog::backdrop { background: rgba(31, 38, 51, .45); }
+.dialog-form { padding: 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+.dialog-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+.dialog-fields .wide { grid-column: 1 / -1; }
+@media (max-width: 560px) { .dialog-fields { grid-template-columns: 1fr; } .dialog-form { padding: 20px 16px; } }
+.dialog-actions { padding-top: 6px; border-top: 1px solid var(--line-soft); }
+.req { color: var(--danger); }
+.form-error { margin: 0; color: var(--danger); font-weight: 600; }
+.checks { border: 0; padding: 0; margin: 0; min-width: 0; }
+.checks legend { font-size: 15px; font-weight: 600; padding: 0; margin-bottom: 6px; }
+.check { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 12px; border: 1px solid var(--input); border-radius: 4px; cursor: pointer; }
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--primary); }
+.check:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px); max-width: calc(100vw - 32px); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 4px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 10; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ----- แถบสถานะการเชื่อมต่อ ----- */
+.net-banner { position: fixed; left: 0; right: 0; top: 0; z-index: 20; padding: 8px 16px; text-align: center; font-weight: 600; background: var(--hl); color: var(--ink); border-bottom: 1px solid var(--warn-line); }
+
+/* ----- เลือกวันที่ ----- */
+.day-nav { gap: 8px; }
+.input-sm { padding: 6px 10px; min-height: 36px; }
+.chip-sm { min-height: 32px; padding: 0 10px; font-size: 14px; }
+
+/* ----- ยาให้เมื่อมีอาการ (PRN) ----- */
+.prn-cell { padding: 8px 12px; }
+.prn-label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+.prn-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 10px; border: 1px solid var(--primary); border-radius: 4px; background: var(--primary-soft); color: var(--primary-dark); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.prn-chip:hover { background: #fff; }
+
+/* ----- เกณฑ์ค่าผิดปกติ ----- */
+.limit-list { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 6px 24px; }
+.limit-list li { padding: 4px 0; border-bottom: 1px solid var(--line-soft); }
+.limit-list li.custom { color: var(--primary-dark); }
+
+/* ----- ประวัติการแก้ไข ----- */
+.edited { font-size: 13px; color: var(--muted); }
+.form-meta { margin: 0; font-size: 14px; color: var(--muted); }
+.changes { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 15px; }
+.changes dt { color: var(--muted); }
+.changes dd { margin: 0; overflow-wrap: anywhere; }
+.changes del { color: var(--danger); }
+.changes ins { text-decoration: none; background: linear-gradient(transparent 55%, var(--hl) 55%); }
+.act { font-weight: 600; }
+.act-delete { color: var(--danger); }
+.act-create { color: var(--primary); }
+tr.inactive td { color: var(--muted); }
+code { font-size: 15px; background: var(--primary-soft); padding: 1px 6px; border-radius: 3px; }
+
+/* ----- หน้าเข้าสู่ระบบ ----- */
+.login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.login-card { width: min(440px, 100%); gap: 18px; }
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-form #setup-fields { display: flex; flex-direction: column; gap: 14px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+@page { size: A4; margin: 14mm 15mm 16mm; }
+@media print {
+  body { background: #fff; font-size: 11.5pt; }
+  .sidebar, .no-print, .link-btn, .toast, .net-banner { display: none !important; }
+  .layout { display: block; }
+  .content { padding: 0; gap: 0; }
+  .paper { box-shadow: none; border: none; padding: 0; max-width: none; font-size: 11.5pt; gap: 14px; }
+  .paper th, .paper td { font-size: 10.5pt; padding: 4px 7px; }
+  .doc-title { font-size: 16pt; }
+  .doc-org strong { font-size: 14pt; }
+  .paper h3.sec { font-size: 12pt; break-after: avoid; }
+  .paper tr, .sign, .allergy-box { break-inside: avoid; }
+  .signatures { break-inside: avoid; padding-top: 18px; }
+  .comment { border: 0; padding: 0; min-height: 0; }
+  .comment:empty { display: block; height: 5.7em; background: repeating-linear-gradient(transparent 0 1.85em, #000 1.85em calc(1.85em + 1px)); }
+  .comment:empty::before { content: none; }
+  .report-section + .report-section { break-before: page; border-top: 0; padding-top: 0; }
+  .doc-foot { font-size: 8.5pt; }
+}
