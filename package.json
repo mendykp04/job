@@ -1,0 +1,8 @@
+{
+  "name": "elderly-care-web",
+  "private": true,
+  "description": "ระบบบันทึกข้อมูลผู้สูงอายุ (ตัวเซิร์ฟเวอร์เป็น Python มีไฟล์นี้ไว้ให้ Render แบบ Node รันได้)",
+  "scripts": {
+    "start": "python3 server.py"
+  }
+}
