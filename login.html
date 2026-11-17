@@ -18,8 +18,11 @@
       <div><span id="login-center" class="brand-name">ระบบบันทึกผู้สูงอายุ</span><span class="brand-sub">บันทึกการดูแลแทนกระดาษ</span></div>
     </div>
     <h1 id="login-title" class="card-title">เข้าสู่ระบบ</h1>
+    <p id="login-demo" class="demo-note" hidden>เว็บทดลอง: ข้อมูลจะถูกล้างเมื่อเซิร์ฟเวอร์รีสตาร์ท ห้ามใส่ข้อมูลผู้ป่วยจริง</p>
     <form id="login-form" class="login-form" novalidate>
       <div id="setup-fields" hidden>
+        <div id="token-wrap" class="field" hidden><label for="l-token">รหัสตั้งค่าครั้งแรก</label><input id="l-token" name="token" class="input" autocomplete="off" spellcheck="false">
+          <small class="hint">ดูได้ที่หน้า Environment ของเว็บใน Render (ค่า SETUP_TOKEN)</small></div>
         <div class="field"><label for="l-name">ชื่อที่แสดงในบันทึก</label><input id="l-name" name="name" class="input" placeholder="เช่น หัวหน้าพยาบาลสมศรี" autocomplete="name"></div>
       </div>
       <div class="field"><label for="username">ชื่อผู้ใช้</label><input id="username" name="username" class="input" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>

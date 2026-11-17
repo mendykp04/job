@@ -544,11 +544,14 @@ async function initLogin() {
     return;
   }
   if (status.center) $('#login-center').textContent = status.center;
+  $('#login-demo').hidden = !status.ephemeral;
   try { await api('GET', '/api/me'); location.replace(target); return; } catch { /* ยังไม่ได้เข้าสู่ระบบ */ }
 
   const setup = status.setup;
   $('#setup-fields').hidden = !setup;
   $('#confirm-wrap').hidden = !setup;
+  $('#token-wrap').hidden = !status.setupToken;
+  $('#l-token').required = !!status.setupToken;
   $('#login-title').textContent = setup ? 'ตั้งค่าครั้งแรก: สร้างบัญชีหัวหน้า / ผู้ดูแลระบบ' : 'เข้าสู่ระบบ';
   $('#login-submit').textContent = setup ? 'สร้างบัญชีและเข้าสู่ระบบ' : 'เข้าสู่ระบบ';
   $('#password').autocomplete = setup ? 'new-password' : 'current-password';
@@ -566,7 +569,7 @@ async function initLogin() {
     const btn = $('#login-submit');
     btn.disabled = true;
     try {
-      await api('POST', setup ? '/api/setup' : '/api/login', { username: f.username.value, password: f.password.value, name: f.name.value });
+      await api('POST', setup ? '/api/setup' : '/api/login', { username: f.username.value, password: f.password.value, name: f.name.value, token: f.token.value });
       location.replace(target);
     } catch (ex) {
       showError(ex.message);

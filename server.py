@@ -29,6 +29,15 @@ PROTECTED_DIR = os.path.join(ROOT, 'data')  # ห้ามเปิดไฟล�
 PORT = int(os.environ.get('PORT', '8000'))
 SESSION_HOURS = 12
 KEEP_BACKUPS = 30
+# บน Render (หรือเมื่ออยู่หลัง proxy) ที่อยู่จริงของผู้ใช้อยู่ใน X-Forwarded-For
+TRUST_PROXY = os.environ.get('TRUST_PROXY', '1' if os.environ.get('RENDER') else '0') == '1'
+# รหัสลับสำหรับสร้างบัญชีหัวหน้าครั้งแรก กันคนอื่นแย่งตั้งค่าเมื่อเว็บออนไลน์ (ไม่ตั้ง = ไม่ต้องใช้รหัส)
+SETUP_TOKEN = os.environ.get('SETUP_TOKEN', '')
+# เว็บทดลองที่ไม่มีพื้นที่เก็บถาวร (เช่น Render แบบฟรี): แสดงคำเตือนว่าข้อมูลจะถูกล้าง
+EPHEMERAL = os.environ.get('EPHEMERAL') == '1'
+# ถ้าตั้งไว้ จะสร้างบัญชีหัวหน้าให้เองเมื่อฐานข้อมูลยังว่าง (เหมาะกับเว็บทดลองที่ข้อมูลถูกล้างบ่อย)
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin').strip().lower()
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', '')
 
 TABLES = {'residents', 'medications', 'vitals', 'nurseNotes', 'doctorOrders', 'mar'}
 ROLES = {'admin', 'nurse', 'aide'}
@@ -37,7 +46,9 @@ STATIC_TYPES = {
     '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
 }
 write_lock = threading.Lock()
-login_failures = {}  # ip -> [เวลาที่ล็อกอินผิด]
+login_failures = {}  # 'ip:…' หรือ 'user:…' -> [เวลาที่ล็อกอินผิด]
+MAX_FAIL_USER = 5    # ใส่รหัสผิดต่อบัญชี ภายใน 10 นาที
+MAX_FAIL_IP = 20     # ใส่รหัสผิดต่อเครื่อง ภายใน 10 นาที
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
@@ -77,6 +88,14 @@ def init_db():
     with connect() as con:
         con.executescript(SCHEMA)
         con.execute("INSERT OR IGNORE INTO meta (k, v) VALUES ('rev', 0)")
+        if ADMIN_PASSWORD and not con.execute('SELECT 1 FROM users LIMIT 1').fetchone():
+            if len(ADMIN_PASSWORD) < 8:
+                print('ADMIN_PASSWORD สั้นกว่า 8 ตัว ไม่ได้สร้างบัญชีหัวหน้าอัตโนมัติ', file=sys.stderr)
+            else:
+                salt, digest = hash_password(ADMIN_PASSWORD)
+                con.execute('INSERT INTO users VALUES (?, ?, ?, ?, ?, 1, ?)',
+                            (ADMIN_USERNAME, os.environ.get('ADMIN_NAME', 'หัวหน้า / ผู้ดูแลระบบ'), 'admin', salt, digest, now_ms()))
+                print(f'สร้างบัญชีหัวหน้าอัตโนมัติ: {ADMIN_USERNAME}')
 
 
 def next_rev(con):
@@ -184,7 +203,18 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def is_https(self):
+        return self.headers.get('X-Forwarded-Proto') == 'https'
+
+    def client_ip(self):
+        forwarded = self.headers.get('X-Forwarded-For')
+        if TRUST_PROXY and forwarded:
+            return forwarded.split(',')[0].strip()
+        return self.client_address[0]
+
     def security_headers(self):
+        if self.is_https():
+            self.send_header('Strict-Transport-Security', 'max-age=31536000')
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('X-Frame-Options', 'DENY')
         self.send_header('Referrer-Policy', 'same-origin')
@@ -224,7 +254,7 @@ class Handler(BaseHTTPRequestHandler):
         return user
 
     def session_cookie(self, token, max_age):
-        secure = '; Secure' if self.headers.get('X-Forwarded-Proto') == 'https' else ''
+        secure = '; Secure' if self.is_https() else ''
         return f'sid={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={max_age}{secure}'
 
     # ---------- เส้นทาง ----------
@@ -276,12 +306,14 @@ class Handler(BaseHTTPRequestHandler):
             has_users = con.execute('SELECT 1 FROM users LIMIT 1').fetchone() is not None
             settings = con.execute("SELECT value FROM kv WHERE key = 'settings'").fetchone()
             center = json.loads(settings['value']).get('center') if settings else None
-            return {'setup': not has_users, 'center': center}
+            return {'setup': not has_users, 'setupToken': bool(SETUP_TOKEN) and not has_users, 'center': center, 'ephemeral': EPHEMERAL}
 
         if key == ('POST', 'setup'):
             if con.execute('SELECT 1 FROM users LIMIT 1').fetchone():
                 raise ApiError(400, 'ตั้งค่าครั้งแรกไปแล้ว')
             body = self.read_json()
+            if SETUP_TOKEN and not secrets.compare_digest(str(body.get('token') or ''), SETUP_TOKEN):
+                raise ApiError(403, 'รหัสตั้งค่าครั้งแรกไม่ถูกต้อง ดูได้ที่ Environment ของเว็บใน Render (SETUP_TOKEN)')
             user = self.create_user(con, body, role='admin')
             return self.start_session(con, user)
 
@@ -306,7 +338,7 @@ class Handler(BaseHTTPRequestHandler):
                     tables[row['tbl']].append(record_out(row))
             kv = {r['key']: json.loads(r['value']) for r in con.execute('SELECT key, value FROM kv')}
             return {'user': public_user(user), 'rev': current_rev(con), 'tables': tables, 'kv': kv,
-                    'initialized': bool(kv.get('initialized'))}
+                    'initialized': bool(kv.get('initialized')), 'ephemeral': EPHEMERAL}
 
         if key == ('GET', 'changes'):
             since = int(query.get('since') or 0)
@@ -415,17 +447,20 @@ class Handler(BaseHTTPRequestHandler):
 
     # ---------- ผู้ใช้ ----------
     def login(self, con):
-        ip = self.client_address[0]
-        recent = [t for t in login_failures.get(ip, []) if t > time.time() - 600]
-        login_failures[ip] = recent
-        if len(recent) >= 5:
-            raise ApiError(429, 'ใส่รหัสผ่านผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่')
         body = self.read_json()
-        row = con.execute('SELECT * FROM users WHERE username = ?', ((body.get('username') or '').strip().lower(),)).fetchone()
+        username = (body.get('username') or '').strip().lower()
+        keys = {'ip:' + self.client_ip(): MAX_FAIL_IP, 'user:' + username: MAX_FAIL_USER}
+        cutoff = time.time() - 600
+        for k, limit in keys.items():
+            login_failures[k] = [t for t in login_failures.get(k, []) if t > cutoff]
+            if len(login_failures[k]) >= limit:
+                raise ApiError(429, 'ใส่รหัสผ่านผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่')
+        row = con.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         if not row or not row['active'] or not check_password(body.get('password') or '', row['salt'], row['hash']):
-            recent.append(time.time())
+            for k in keys:
+                login_failures[k].append(time.time())
             raise ApiError(400, 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง')
-        login_failures.pop(ip, None)
+        login_failures.pop('user:' + username, None)
         return self.start_session(con, row)
 
     def start_session(self, con, user):

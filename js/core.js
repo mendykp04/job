@@ -26,6 +26,7 @@ const TABLES = { residents, medications, vitals, nurseNotes, doctorOrders, mar: 
 const SEED = JSON.parse(JSON.stringify({ residents, medications, vitals, nurseNotes, doctorOrders })); // ข้อมูลตัวอย่างจาก data.js
 const kv = {};        // ค่าตั้งค่า / ความเห็นในรายงาน / ร่างใบส่งตัว
 let currentUser = null;
+let ephemeral = false; // เว็บทดลองที่ข้อมูลจะถูกล้าง
 let rev = 0;          // เลขเวอร์ชันข้อมูลล่าสุดที่โหลดมา
 let marIndex = null;
 
@@ -192,6 +193,7 @@ function applyAll(all) {
   Object.assign(kv, all.kv);
   rev = all.rev;
   currentUser = all.user;
+  ephemeral = !!all.ephemeral;
   applyOutbox();
   marIndex = null;
 }
@@ -791,6 +793,7 @@ function renderSidebar(active) {
       <div><span class="brand-name">${esc(settings.center)}</span><span class="brand-sub">ระบบบันทึกผู้สูงอายุ</span></div>
     </div>
     ${links.map(([key, href, label]) => `<a class="nav-link${key === active ? ' active' : ''}" href="${href}"${key === active ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
+    ${ephemeral ? '<p class="demo-note">เว็บทดลอง: ข้อมูลจะถูกล้างเมื่อเซิร์ฟเวอร์รีสตาร์ท ห้ามใส่ข้อมูลผู้ป่วยจริง</p>' : ''}
     <div class="sidebar-user">
       <strong>${esc(currentUser.name)}</strong><br>${ROLE_LABELS[currentUser.role]}
       <div class="sidebar-actions">
