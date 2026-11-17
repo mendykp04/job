@@ -1,11 +1,11 @@
-# ตั้งค่าสำหรับ Render (https://render.com)
-# วิธีใช้: Render → New → Blueprint → เลือก repo นี้ → ใส่ ADMIN_PASSWORD → Apply
+# ตั้งค่าสำหรับ Render (https://render.com) — แบบฟรี เก็บข้อมูลที่ Turso (ฟรี ข้อมูลไม่หาย)
+# วิธีใช้: Render → New → Blueprint → เลือก repo นี้ → กรอกค่า 3 ช่องที่ Render ถาม → Apply
+#   TURSO_DATABASE_URL  ที่อยู่ฐานข้อมูล จาก Turso (ขึ้นต้นด้วย libsql://)
+#   TURSO_AUTH_TOKEN    รหัสเข้าฐานข้อมูล จาก Turso (กด Create Token ในหน้าฐานข้อมูล)
+#   ADMIN_PASSWORD      รหัสผ่านบัญชีหัวหน้า (ชื่อผู้ใช้ admin) อย่างน้อย 8 ตัว
+#                       ใช้แค่ตอนเริ่มครั้งแรก หลังเข้าสู่ระบบแล้วเปลี่ยนรหัสผ่านในเว็บได้
 #
-# ตอนนี้เป็นแบบฟรี (ทดลอง): ข้อมูลจะถูกล้างทุกครั้งที่เว็บหลับ (ไม่มีคนใช้ 15 นาที) หรือมีการอัปเดต
-# จะใช้จริง ให้เปลี่ยนเป็นแบบเสียเงินที่มีพื้นที่เก็บถาวร:
-#   1. เปลี่ยน plan: free เป็น plan: starter
-#   2. เอาเครื่องหมาย # หน้า disk: ... และ CARE_DB ออก
-#   3. ลบ EPHEMERAL และ ADMIN_PASSWORD ออก (ตั้งบัญชีหัวหน้าเองด้วย SETUP_TOKEN แทน)
+# แบบฟรี: เว็บหลับเมื่อไม่มีคนใช้ 15 นาที คนแรกที่เข้าต้องรอประมาณ 1 นาที แต่ข้อมูลไม่หาย
 services:
   - type: web
     name: elderly-care
@@ -16,22 +16,17 @@ services:
     startCommand: python3 server.py
     healthCheckPath: /api/status
     autoDeploy: true
-    # disk:
-    #   name: care-data
-    #   mountPath: /var/data
-    #   sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
-      # - key: CARE_DB
-      #   value: /var/data/care.db
-      - key: EPHEMERAL
-        value: "1"
-      # บัญชีหัวหน้าที่สร้างให้เองทุกครั้งที่เว็บเริ่มใหม่ (Render จะให้กรอกรหัสผ่านตอนสร้าง อย่างน้อย 8 ตัว)
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
       - key: ADMIN_USERNAME
         value: admin
       - key: ADMIN_PASSWORD
         sync: false
-      # รหัสลับสำหรับตั้งค่าครั้งแรกด้วยตัวเอง (ใช้เมื่อไม่ได้ตั้ง ADMIN_PASSWORD)
+      # รหัสลับสำหรับตั้งบัญชีหัวหน้าเองครั้งแรก (ใช้เมื่อไม่ได้ตั้ง ADMIN_PASSWORD)
       - key: SETUP_TOKEN
         generateValue: true

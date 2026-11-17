@@ -10,3 +10,6 @@ care-backup-*.json
 __pycache__/
 *.pyc
 .claude/
+
+# รหัสเชื่อมต่อฐานข้อมูล (Turso) ห้ามขึ้น GitHub
+.env

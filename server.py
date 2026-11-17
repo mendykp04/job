@@ -6,6 +6,7 @@
 แล้วเปิด   http://localhost:8000  (เครื่องอื่นใน Wi-Fi เดียวกันใช้ที่อยู่ที่แสดงตอนเปิดเซิร์ฟเวอร์)
 
 ข้อมูลเก็บที่ data/care.db และสำรองอัตโนมัติวันละครั้งที่ data/backups/
+ถ้าตั้ง TURSO_DATABASE_URL และ TURSO_AUTH_TOKEN ไว้ (ในไฟล์ .env หรือใน Render) จะเก็บข้อมูลที่ Turso แทน
 """
 import hashlib
 import json
@@ -22,6 +23,24 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+def load_env_file(path):
+    """อ่านไฟล์ .env (KEY=ค่า บรรทัดละตัว) สำหรับรันบนเครื่องตัวเอง ไฟล์นี้ห้ามขึ้น GitHub"""
+    if not os.path.isfile(path):
+        return
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, value = line.split('=', 1)
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+load_env_file(os.path.join(ROOT, '.env'))
+TURSO_URL = os.environ.get('TURSO_DATABASE_URL', '').strip()
+TURSO_TOKEN = os.environ.get('TURSO_AUTH_TOKEN', '').strip()
 DB_PATH = os.path.abspath(os.environ.get('CARE_DB', os.path.join(ROOT, 'data', 'care.db')))
 DATA_DIR = os.path.dirname(DB_PATH)
 BACKUP_DIR = os.path.join(DATA_DIR, 'backups')
@@ -76,6 +95,9 @@ def now_ms():
 
 
 def connect():
+    if TURSO_URL:
+        from turso import TursoConnection
+        return TursoConnection(TURSO_URL, TURSO_TOKEN)
     con = sqlite3.connect(DB_PATH, timeout=15)
     con.row_factory = sqlite3.Row
     con.execute('PRAGMA journal_mode=WAL')
@@ -84,8 +106,10 @@ def connect():
 
 
 def init_db():
-    os.makedirs(DATA_DIR, exist_ok=True)
-    with connect() as con:
+    if not TURSO_URL:
+        os.makedirs(DATA_DIR, exist_ok=True)
+    con = connect()
+    with con:
         con.executescript(SCHEMA)
         con.execute("INSERT OR IGNORE INTO meta (k, v) VALUES ('rev', 0)")
         if ADMIN_PASSWORD and not con.execute('SELECT 1 FROM users LIMIT 1').fetchone():
@@ -96,6 +120,7 @@ def init_db():
                 con.execute('INSERT INTO users VALUES (?, ?, ?, ?, ?, 1, ?)',
                             (ADMIN_USERNAME, os.environ.get('ADMIN_NAME', 'หัวหน้า / ผู้ดูแลระบบ'), 'admin', salt, digest, now_ms()))
                 print(f'สร้างบัญชีหัวหน้าอัตโนมัติ: {ADMIN_USERNAME}')
+    con.close()
 
 
 def next_rev(con):
@@ -621,13 +646,14 @@ def lan_addresses():
 def main():
     sys.stdout.reconfigure(line_buffering=True)  # ให้ข้อความแสดงทันทีแม้ไม่ได้รันใน Terminal
     init_db()
-    threading.Thread(target=backup_loop, daemon=True).start()
+    if not TURSO_URL:  # Turso สำรองข้อมูลให้เองที่ฝั่ง Turso
+        threading.Thread(target=backup_loop, daemon=True).start()
     server = ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
     print('ระบบบันทึกผู้สูงอายุ เปิดแล้ว')
     print(f'  เครื่องนี้:          http://localhost:{PORT}')
     for a in lan_addresses():
         print(f'  เครื่องอื่นใน Wi-Fi:  http://{a}:{PORT}')
-    print(f'  ข้อมูลเก็บที่:       {DB_PATH}')
+    print(f'  ข้อมูลเก็บที่:       {TURSO_URL or DB_PATH}')
     print('กด Ctrl+C เพื่อปิด')
     try:
         server.serve_forever()
